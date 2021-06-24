@@ -1,5 +1,45 @@
-{% load staticfiles sekizai_tags %}
+{% load staticfiles sekizai_tags i18n %}
 
-{% addtoblock "css" %}<link href="https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.css" rel="stylesheet" />{% endaddtoblock %}
-{% addtoblock "js" %}<script src="https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.js"></script>{% endaddtoblock %}
-{% addtoblock "js" %}<script src="{% static 'djangocms_maps/js/mapbox.js' %}"></script>{% endaddtoblock %}
+{% if object.layers_control %}
+{% comment %}
+  <div class="djangocms-maps-style-menu">
+    <!-- See a list of Mapbox-hosted public styles at -->
+    <!-- https://docs.mapbox.com/api/maps/styles/#mapbox-styles -->
+    <input id="style_toggle_default" type="radio" name="style-toggle" value="default" checked="checked">
+    <label for="style_toggle_default">{% trans "Default" %}</label>
+    <input id="style_toggle_satellite" type="radio" name="style-toggle" value="satellite">
+    <label for="style_toggle_satellite">{% trans "Satellite" %}</label>
+  </div>
+{% endcomment %}
+{% endif %}
+
+{% addtoblock "css" %}
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.css" rel="stylesheet">
+  {% block djangocms-maps-style %}
+    <style>
+      .djangocms-maps {
+        position: relative;
+      }
+
+      .mapboxgl-ctrl-layers {
+        padding: 7px 10px 10px 10px;
+      }
+      
+      .mapboxgl-ctrl-layers label {
+        margin: 0 1em 0 .25em;
+      }
+
+      .mapboxgl-ctrl-layers label:last-child {
+        margin-right: 0;
+      }
+    </style>
+  {% endblock djangocms-maps-style %}
+{% endaddtoblock %}
+
+{% addtoblock "js" %}
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.js"></script>
+  {% if not object.lat and not object.lng %}
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.min.js"></script>
+  {% endif %}
+  <script src="{% static 'djangocms_maps/js/mapbox.js' %}"></script>
+{% endaddtoblock %}
