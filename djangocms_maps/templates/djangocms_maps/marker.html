@@ -1,0 +1,16 @@
+{% load cms_tags %}
+
+<div class="djangocms-marker js-marker"
+    data-title="{{ instance.title }}"
+    data-address="{{ instance.address }}"
+    data-lat="{{ instance.lat|default:"false"|stringformat:"f" }}"
+    data-lng="{{ instance.lng|default:"false"|stringformat:"f" }}"
+    data-icon="{{ instance.icon.url }}"
+    data-show-content="{{ instance.show_content|lower }}"
+    data-info-content="{{ instance.info_content }}"
+    {% if request.toolbar and request.toolbar.edit_mode_active or request.toolbar and request.toolbar.edit_mode %}
+    data-admin="{{ instance.get_edit_url }}"
+    {% endif %}
+    hidden
+>
+</div>

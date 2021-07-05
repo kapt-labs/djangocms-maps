@@ -38,8 +38,10 @@
 
 {% addtoblock "js" %}
   <script src="https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.js"></script>
-  {% if not object.lat and not object.lng %}
+  {% comment %}
+    TODO: add templatetag to display this only if there's no lat & lng in center map AND in markers {% endcomment %}
+  {% comment %} {% if not object.lat and not object.lng %} {% endcomment %}
     <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.min.js"></script>
-  {% endif %}
+  {% comment %} {% endif %} {% endcomment %}
   <script src="{% static 'djangocms_maps/js/mapbox.js' %}"></script>
 {% endaddtoblock %}

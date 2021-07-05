@@ -6,6 +6,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from cms.models import CMSPlugin
 
+from filer.fields.image import FilerImageField
+
 from .settings import PROVIDERS
 
 
@@ -26,10 +28,6 @@ class Maps(CMSPlugin):
     address = models.CharField(_("address"), max_length=150)
     zipcode = models.CharField(_("zip code"), max_length=30)
     city = models.CharField(_("city"), max_length=100)
-
-    content = models.CharField(
-        _("additional content"), max_length=255, blank=True,
-        help_text=_('Displayed under address in the bubble.'))
 
     style = models.TextField(
         _("custom map style"), blank=True,
@@ -106,3 +104,65 @@ class Maps(CMSPlugin):
         if self.lat and self.lng:
             return self.lat, self.lng
         return None
+
+
+class MapsMarker(CMSPlugin):
+    """
+    Renders a marker inside the Maps wrapper
+    """
+    title = models.CharField(
+        verbose_name=_('Title'),
+        max_length=255,
+        blank=True,
+    )
+    address = models.CharField(
+        verbose_name=_('Full address'),
+        max_length=255,
+        blank=True,
+        help_text=_('Note: Latitude and longitude can be used to fine-tune the location.'),
+    )
+    lat = models.FloatField(
+        verbose_name=_('Latitude (lat)'),
+        null=True,
+        blank=True,
+        help_text=_('Geographical latitude in degrees (e.g. "46.947973").'),
+    )
+    lng = models.FloatField(
+        verbose_name=_('Longitude (lng)'),
+        null=True,
+        blank=True,
+        help_text=_('Geographical longitude in degrees (e.g. "7.447446").'),
+    )
+    icon = FilerImageField(
+        verbose_name=_('Icon'),
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text=_('A marker icon identifies a location on a map. '
+                    'A default icon is provided by default.'),
+    )
+    # info window settings
+    show_content = models.BooleanField(
+        verbose_name=_('Show window'),
+        default=True,
+        help_text=_('Display the info window when the map loads.'),
+    )
+    info_content = models.TextField(
+        verbose_name=_('Info window content'),
+        blank=True,
+        help_text=_('Will be displayed in the info window attached to the marker.'),
+    )
+
+    def __str__(self):
+        return str(self.pk)
+
+    def get_short_description(self):
+        display = []
+        if self.title:
+            display.append(self.title)
+        if self.address:
+            display.append(self.address)
+        if self.lat and self.lng:
+            display.append('{0} / {1}'.format(self.lat, self.lng))
+        return ', '.join(display)
+

@@ -77,6 +77,9 @@ djangocms.Maps = {
         mapboxgl.accessToken = options.apiKey;
 
         let map = new mapboxgl.Map(options);
+        var markers = document.getElementsByClassName('js-marker');
+        markers = [].slice.call(markers);
+
 
         if (options.layersControl) {
             const layer = new LayersControl();
@@ -94,7 +97,37 @@ djangocms.Maps = {
             map.addControl(scale);
         }
 
-        // latitute or longitute have precedence over the address when provided
+        // display markers
+        for (marker of markers){
+            const marker_data = marker.dataset;
+            if (marker.dataset.lat.length && marker.dataset.lng.length) {
+                const latlng = {
+                    lat: parseFloat(marker.dataset.lat.replace(",", ".")),
+                    lng: parseFloat(marker.dataset.lng.replace(",", "."))
+                };
+                this.addMarker(map, latlng, marker_data);
+            } else {
+                // load latlng from given address
+                const geocoder = new MapboxGeocoder({
+                    accessToken: mapboxgl.accessToken,
+                    mapboxgl: mapboxgl,
+                    limit: 1
+                });
+                const marker_data = marker.dataset;
+                const geocoderContainer = document.createElement("div");
+                geocoderContainer.setAttribute('style', 'display: none;');
+                container.append(geocoderContainer);
+                geocoder.addTo(geocoderContainer);
+                geocoder.query(marker.dataset.address).on("results", function(geodata) {
+                    if (geodata.features[0].center) {
+                        const center = geodata.features[0].center;
+                        that.addMarker(map, center, marker_data);
+                    }
+                });
+            }
+        }
+
+        // latitute or longitude have precedence over the address when provided
         // inside the plugin form
         if (data.lat.length && data.lng.length) {
             const latlng = {
@@ -102,7 +135,6 @@ djangocms.Maps = {
                 lng: parseFloat(data.lng.replace(",", "."))
             };
             map.jumpTo({center: latlng, zoom: data.zoom});
-            this.addMarker(map, latlng, data);
         } else {
             // load latlng from given address
             const geocoder = new MapboxGeocoder({
@@ -118,7 +150,6 @@ djangocms.Maps = {
                 if (geodata.features[0].center) {
                     const center = geodata.features[0].center;
                     map.jumpTo({center: center, zoom: options.zoom});
-                    that.addMarker(map, center, data);
                 }
             });
         }
@@ -138,7 +169,7 @@ djangocms.Maps = {
             .setLngLat(latlng)
             .addTo(map);
 
-        if (data.show_infowindow === "true") {
+        if (data.showContent === "true") {
             // prepare info window
             if (data.title.length) {
                 windowContent += "<h2>" + data.title + "</h2>";
@@ -146,8 +177,8 @@ djangocms.Maps = {
 
             windowContent += data.address;
 
-            if (data.info_content.length) {
-                windowContent += "<br /><em>" + data.info_content + "</em>";
+            if (data.infoContent.length) {
+                windowContent += "<br /><em>" + data.infoContent + "</em>";
             }
 
             const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(windowContent);

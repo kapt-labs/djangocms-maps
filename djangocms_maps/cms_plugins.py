@@ -7,7 +7,7 @@ from cms.plugin_base import CMSPluginBase
 from cms.plugin_pool import plugin_pool
 
 from .forms import MapsForm
-from .models import Maps
+from .models import Maps, MapsMarker
 from .settings import API_KEYS
 
 
@@ -19,6 +19,8 @@ class MapsPlugin(CMSPluginBase):
     name = _("Maps")
     render_template = "djangocms_maps/maps.html"
     admin_preview = False
+    allow_children = True
+    child_classes = ["MapsMarkerPlugin"]
     form = MapsForm
     fieldsets = (
         (None, {
@@ -26,7 +28,6 @@ class MapsPlugin(CMSPluginBase):
                 'title',
                 ('address', 'city'),
                 ('zipcode', 'zoom',),
-                'content',
                 ('lat', 'lng'),
             ),
         }),
@@ -53,4 +54,34 @@ class MapsPlugin(CMSPluginBase):
         return context
 
 
+class MapsMarkerPlugin(CMSPluginBase):
+    model = MapsMarker
+    name = _('Marker')
+    module = _('Maps')
+    require_parent = True
+    parent_classes = ['MapsPlugin']
+
+    fieldsets = [
+        (None, {
+            'fields': (
+                'title',
+                'address',
+                ('lat', 'lng',),
+                'icon',
+            )
+        }),
+        (_('Info window'), {
+            'classes': ('collapse',),
+            'fields': (
+                'show_content',
+                'info_content',
+            )
+        }),
+    ]
+
+    def get_render_template(self, context, instance, placeholder):
+        return 'djangocms_maps/marker.html'
+
+
 plugin_pool.register_plugin(MapsPlugin)
+plugin_pool.register_plugin(MapsMarkerPlugin)

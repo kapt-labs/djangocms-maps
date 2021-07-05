@@ -1,4 +1,4 @@
-{% load i18n %}{% get_current_language as LANGUAGE_CODE %}
+{% load i18n cms_tags %}{% get_current_language as LANGUAGE_CODE %}
 <div class="djangocms djangocms-maps plugin_maps">
     {% include "djangocms_maps/maps_title.html" %}
     <div class="djangocms-maps-container" id="djangocms-maps-{{ object.map_provider }}-{{ object.pk }}"
@@ -25,4 +25,7 @@
         style="{% if object.width %}width: {{ object.width }}; {% endif %}{% if object.height %}height: {{ object.height }};{% endif %}">
     </div>
     {% include "djangocms_maps/provider/"|add:object.map_provider|add:".html" %}
+    {% for plugin in object.child_plugin_instances %}
+        {% render_plugin plugin %}
+    {% endfor %}
 </div>
