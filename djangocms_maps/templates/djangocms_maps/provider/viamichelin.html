@@ -1,4 +1,4 @@
-{% load i18n sekizai_tags staticfiles djangocms_maps %}
+{% load i18n sekizai_tags static djangocms_maps %}
 
 {% get_current_language as LANGUAGE_CODE %}
 {% addtoblock "js" %}<script src="https://secure-apijs.viamichelin.com/apijsv2/api/js?key={{ api_key }}&lang={{ LANGUAGE_CODE|viamichelin }}&protocol=https" type="text/javascript"></script>{% endaddtoblock %}
